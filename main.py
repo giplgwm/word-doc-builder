@@ -37,14 +37,14 @@ if files:
     # container.empty()  # Remove file uploader from page
     with st.form("label_form"):
         # add each file to a doc file
-        for user_file in files[::-1]:
+        for index, user_file in enumerate(files[::-1]):
             # Display the files so the user can add their labels
             file_card = ImageCard(user_file)
             image_cards.append(file_card)
             file_card_element = st.empty()
             file_card_text = st.empty()
             file_card_element.image(file_card.img)
-            file_card.label = file_card_text.text_input(f"{file_card.label}", label_visibility='collapsed', placeholder="Label Photo")
+            file_card.label = file_card_text.text_input(f"{file_card.label}_{index}", label_visibility='collapsed', placeholder="Label Photo")
         document_name = st.text_input("Name your word doc", placeholder="Document Name")
         submitted = st.form_submit_button("Generate Word File")
 
