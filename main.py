@@ -3,6 +3,10 @@ from docx import Document
 from io import BytesIO
 from PIL import Image
 
+st.set_page_config(
+        page_title="Word doc builder",
+        page_icon="📝"
+)
 
 class ImageCard:
     def __init__(self, img):
