@@ -4,9 +4,11 @@ from io import BytesIO
 from PIL import Image
 
 st.set_page_config(
-        page_title="Word doc builder",
-        page_icon="📝"
+    page_title="Word doc builder",
+    page_icon="📝",
+    menu_items={'About': "Generates word documents with photos & labels, with page breaks between them."}
 )
+
 
 class ImageCard:
     def __init__(self, img):
@@ -24,11 +26,12 @@ class ImageCard:
 
 MAX_WIDTH = 512
 word_doc_bytesio = None
-document_name = "Untitled 001"
+document_name = ""
 image_cards = []
 container = st.empty()
 files = container.file_uploader("**Labeled Doc Generator**", accept_multiple_files=True, label_visibility='collapsed',
                                 help="Upload your images here")
+
 
 if files:
     container.empty()  # Remove file uploader from page
@@ -41,8 +44,8 @@ if files:
             file_card_element = st.empty()
             file_card_text = st.empty()
             file_card_element.image(file_card.img)
-            file_card.label = file_card_text.text_input("label1", file_card.label, label_visibility='collapsed')
-        document_name = st.text_input("Name your word doc", "Document Name")
+            file_card.label = file_card_text.text_input("label1", label_visibility='collapsed', placeholder="Label Photo")
+        document_name = st.text_input("Name your word doc", placeholder="Document Name")
         submitted = st.form_submit_button("Generate Word File")
 
         if submitted:
@@ -73,4 +76,4 @@ if files:
                 percent_text.text(f"Processing: {current_progress * 100:.2f}%")
             word_doc.save(word_doc_bytesio)
     if word_doc_bytesio:
-        st.download_button("Download Doc file!", word_doc_bytesio, f"{document_name}.docx")
+        st.download_button("Download Doc file!", word_doc_bytesio, f"{document_name or "Untitled"}.docx")
