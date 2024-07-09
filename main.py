@@ -34,7 +34,7 @@ files = container.file_uploader("**Labeled Doc Generator**", accept_multiple_fil
 
 
 if files:
-    container.empty()  # Remove file uploader from page
+    # container.empty()  # Remove file uploader from page
     with st.form("label_form"):
         # add each file to a doc file
         for user_file in files:
