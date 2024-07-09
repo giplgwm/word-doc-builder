@@ -44,7 +44,7 @@ if files:
             file_card_element = st.empty()
             file_card_text = st.empty()
             file_card_element.image(file_card.img)
-            file_card.label = file_card_text.text_input("label1", label_visibility='collapsed', placeholder="Label Photo")
+            file_card.label = file_card_text.text_input(f"{file_card.label}", label_visibility='collapsed', placeholder="Label Photo")
         document_name = st.text_input("Name your word doc", placeholder="Document Name")
         submitted = st.form_submit_button("Generate Word File")
 
