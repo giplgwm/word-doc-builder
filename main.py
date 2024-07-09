@@ -37,7 +37,7 @@ if files:
     # container.empty()  # Remove file uploader from page
     with st.form("label_form"):
         # add each file to a doc file
-        for index, user_file in enumerate(files[::-1]):
+        for index, user_file in enumerate(files):
             # Display the files so the user can add their labels
             file_card = ImageCard(user_file)
             image_cards.append(file_card)
