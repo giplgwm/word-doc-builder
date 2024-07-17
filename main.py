@@ -25,6 +25,7 @@ class ImageCard:
 
 
 MAX_WIDTH = 512
+MAX_HEIGHT = 300
 word_doc_bytesio = None
 document_name = ""
 image_cards = []
@@ -67,10 +68,10 @@ if files:
                     new_height = int(pil_image.height * aspect_ratio)
                     pil_image = pil_image.resize((MAX_WIDTH, new_height))
                     pil_image.save(resized_img, format='PNG')
-                if pil_image.height > MAX_WIDTH:
-                    aspect_ratio = MAX_WIDTH / pil_image.height
+                if pil_image.height > MAX_HEIGHT:
+                    aspect_ratio = MAX_HEIGHT / pil_image.height
                     new_width = int(pil_image.width * aspect_ratio)
-                    pil_image = pil_image.resize((new_width, MAX_WIDTH))
+                    pil_image = pil_image.resize((new_width, MAX_HEIGHT))
                     pil_image.save(resized_img, format='PNG')
                 word_doc.add_picture(resized_img)
                 word_doc.add_paragraph(s.label)
