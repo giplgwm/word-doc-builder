@@ -8,6 +8,7 @@ from utils.file_handling import save_uploaded_file
 st.set_page_config(
     page_title="Word Doc Builder",
     page_icon="📝",
+    layout="wide",
     menu_items={'About': "Generates word documents with photos & labels, with page breaks between them."}
 )
 
