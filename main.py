@@ -1,85 +1,101 @@
 import streamlit as st
-from docx import Document
-from io import BytesIO
 from PIL import Image
+import io
+from utils.image_processing import crop_image
+from utils.document_generation import create_word_document, create_pdf_document
+from utils.file_handling import save_uploaded_file
 
 st.set_page_config(
-    page_title="Word doc builder",
+    page_title="Word Doc Builder",
     page_icon="📝",
     menu_items={'About': "Generates word documents with photos & labels, with page breaks between them."}
 )
 
+# Initialize session state
+if 'photos' not in st.session_state:
+    st.session_state.photos = []
 
-class ImageCard:
-    def __init__(self, img):
-        self.img = img
-        self.label = img.name.split('.')[0]
+# File uploader
+uploaded_files = st.file_uploader("Upload photos", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+if uploaded_files:
+    new_files_added = False
+    for uploaded_file in uploaded_files:
+        # Save the uploaded file and get the file path and MD5 hash
+        file_path, md5_hash = save_uploaded_file(uploaded_file)
+        
+        # Check if the file is already in the session state
+        if not any(photo['md5_hash'] == md5_hash for photo in st.session_state.photos):
+            # Add the file path, MD5 hash, and an empty label to the session state
+            st.session_state.photos.append({"path": file_path, "md5_hash": md5_hash, "label": "", "name": uploaded_file.name})
+            new_files_added = True
+    
+    if new_files_added:
+        st.success("New files have been uploaded successfully!")
+    else:
+        pass
 
-    def __str__(self):
-        return self.label or "No label provided yet..."
+# Display info message
+if st.session_state.photos:
+    st.text("You can label and reorder your photos below. Photos with no label will be labeled the same as the photo before them, so you don't have to repeat yourself.")
 
-    def change_label(self, new_label: str):
-        if (not new_label) or new_label == self.label:
-            return
-        self.label = new_label
+# Display and label photos
+if st.session_state.photos:
+    # Add "Move Up" and "Move Down" buttons
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Move Up"):
+            selected_indices = [i for i, photo in enumerate(st.session_state.photos) if st.session_state.get(f"select_{i}", False)]
+            for idx in sorted(selected_indices):
+                if idx > 0:
+                    # Swap photos
+                    st.session_state.photos[idx], st.session_state.photos[idx-1] = st.session_state.photos[idx-1], st.session_state.photos[idx]
+            st.rerun()  # Add this line to refresh the page after moving photos
+    
+    with col2:
+        if st.button("Move Down"):
+            selected_indices = [i for i, photo in enumerate(st.session_state.photos) if st.session_state.get(f"select_{i}", False)]
+            for idx in sorted(selected_indices, reverse=True):
+                if idx < len(st.session_state.photos) - 1:
+                    # Swap photos
+                    st.session_state.photos[idx], st.session_state.photos[idx+1] = st.session_state.photos[idx+1], st.session_state.photos[idx]
+            st.rerun()  # Add this line to refresh the page after moving photos
 
+    # Display photos and labels
+    for i, photo in enumerate(st.session_state.photos):
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            is_selected = st.checkbox("Select", key=f"select_{i}", value=st.session_state.get(f"select_{i}", False))
+            st.image(photo["path"], use_column_width=True)
+        
+        with col2:
+            new_label = st.text_input(f"Label for photo {i+1}", value=photo["label"], key=f"label_{i}")
+            st.session_state.photos[i]["label"] = new_label
 
-MAX_WIDTH = 512
-MAX_HEIGHT = 300
-word_doc_bytesio = None
-document_name = ""
-image_cards = []
-container = st.empty()
-files = container.file_uploader("**Labeled Doc Generator**", accept_multiple_files=True, label_visibility='collapsed',
-                                help="Upload your images here")
-
-
-if files:
-    # container.empty()  # Remove file uploader from page
-    with st.form("label_form"):
-        # add each file to a doc file
-        for index, user_file in enumerate(files):
-            # Display the files so the user can add their labels
-            file_card = ImageCard(user_file)
-            image_cards.append(file_card)
-            file_card_element = st.empty()
-            file_card_text = st.empty()
-            file_card_element.image(file_card.img)
-            file_card.label = file_card_text.text_input(f"{file_card.label}_{index}", label_visibility='collapsed', placeholder="Label Photo")
-        document_name = st.text_input("Name your word doc", placeholder="Document Name")
-        submitted = st.form_submit_button("Generate Word File")
-
-        if submitted:
-            # Set up our progress bar
-            percentage_per_file = (100 / len(files)) / 100
-            current_progress = 0
-            percent_text = st.empty()
-            percent_text.text("Processing: 0%")
-            bar = st.progress(0)
-
-            # Generate doc and BytesIO wrapper
-            word_doc = Document()
-            word_doc_bytesio = BytesIO()
-            for s in image_cards:
-                pil_image = Image.open(s.img)
-                resized_img = BytesIO()
-                if pil_image.width > MAX_WIDTH:
-                    aspect_ratio = MAX_WIDTH / pil_image.width
-                    new_height = int(pil_image.height * aspect_ratio)
-                    pil_image = pil_image.resize((MAX_WIDTH, new_height))
-                    pil_image.save(resized_img, format='PNG')
-                if pil_image.height > MAX_HEIGHT:
-                    aspect_ratio = MAX_HEIGHT / pil_image.height
-                    new_width = int(pil_image.width * aspect_ratio)
-                    pil_image = pil_image.resize((new_width, MAX_HEIGHT))
-                    pil_image.save(resized_img, format='PNG')
-                word_doc.add_picture(resized_img)
-                word_doc.add_paragraph(s.label)
-                word_doc.add_page_break()
-
-                current_progress += percentage_per_file
-                bar.progress(current_progress)
-                percent_text.text(f"Processing: {current_progress * 100:.2f}%")
-            word_doc.save(word_doc_bytesio)
-    if word_doc_bytesio:
-        st.download_button("Download Doc file!", word_doc_bytesio, f"{document_name or "Untitled"}.docx")
+# Generate document
+if st.session_state.photos:
+    document_name = st.text_input("Enter document name", value="photos")
+    doc_type = st.radio("Select document type", ("Word", "PDF"))
+    if st.button("Generate Document"):
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        if doc_type == "Word":
+            doc_file = create_word_document(st.session_state.photos, progress_callback=lambda p: progress_bar.progress(p))
+            file_extension = "docx"
+            mime_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        else:
+            doc_file = create_pdf_document(st.session_state.photos, progress_callback=lambda p: progress_bar.progress(p))
+            file_extension = "pdf"
+            mime_type = "application/pdf"
+        
+        progress_bar.progress(100)
+        status_text.text("Document generated successfully!")
+        
+        # Offer the document for download
+        st.download_button(
+            label="Download Document",
+            data=doc_file.getvalue(),
+            file_name=f"{document_name}.{file_extension}",
+            mime=mime_type
+        )
