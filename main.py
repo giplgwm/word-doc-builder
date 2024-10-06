@@ -67,8 +67,6 @@ if st.session_state.photos:
         with col1:
             is_selected = st.checkbox("Select", key=f"select_{i}", value=st.session_state.get(f"select_{i}", False))
             st.image(photo["path"], use_column_width=True)
-        
-        with col2:
             new_label = st.text_input(f"Label for photo {i+1}", value=photo["label"], key=f"label_{i}")
             st.session_state.photos[i]["label"] = new_label
 
