@@ -3,7 +3,6 @@ import tempfile
 import hashlib
 from PIL import Image, ImageOps
 
-
 def save_uploaded_file(uploaded_file):
     """
     Save the uploaded file to a temporary directory, rotate it according to EXIF data,
