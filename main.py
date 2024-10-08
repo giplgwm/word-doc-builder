@@ -27,8 +27,9 @@ if uploaded_files:
         file_path, md5_hash = save_uploaded_file(uploaded_file)
 
         # Check if the file is already in the session state
-        if not any(photo.get('md5_hash') == md5_hash
-                   for photo in st.session_state.photos):
+        if not any(
+                photo.get('md5_hash') == md5_hash
+                for photo in st.session_state.photos):
             # Add the file path, MD5 hash, and an empty label to the session state
             st.session_state.photos.append({
                 "path": file_path,
@@ -40,7 +41,7 @@ if uploaded_files:
             new_files_added = True
 
     if new_files_added:
-        st.success("New files have been uploaded successfully!")
+        pass
     else:
         pass
 
@@ -62,11 +63,13 @@ if st.session_state.photos:
             ]
             for idx in sorted(selected_indices):
                 if idx > 0:
-                    # Swap photos
-                    st.session_state.photos[idx], st.session_state.photos[idx - 1] = st.session_state.photos[idx - 1], st.session_state.photos[idx]
+                    # Swap photos and labels
+                    st.session_state.photos[idx], st.session_state.photos[
+                        idx - 1] = st.session_state.photos[
+                            idx - 1], st.session_state.photos[idx]
                     # Update selection state
-                    st.session_state.photos[idx]["selected"] = False
-                    st.session_state.photos[idx - 1]["selected"] = True
+                    st.session_state.photos[idx]['selected'] = False
+                    st.session_state.photos[idx - 1]['selected'] = True
             st.rerun()
 
     with col2:
@@ -77,11 +80,13 @@ if st.session_state.photos:
             ]
             for idx in sorted(selected_indices, reverse=True):
                 if idx < len(st.session_state.photos) - 1:
-                    # Swap photos
-                    st.session_state.photos[idx], st.session_state.photos[idx + 1] = st.session_state.photos[idx + 1], st.session_state.photos[idx]
+                    # Swap photos and labels
+                    st.session_state.photos[idx], st.session_state.photos[
+                        idx + 1] = st.session_state.photos[
+                            idx + 1], st.session_state.photos[idx]
                     # Update selection state
-                    st.session_state.photos[idx]["selected"] = False
-                    st.session_state.photos[idx + 1]["selected"] = True
+                    st.session_state.photos[idx]['selected'] = False
+                    st.session_state.photos[idx + 1]['selected'] = True
             st.rerun()
 
     # Display photos and labels
@@ -94,16 +99,16 @@ if st.session_state.photos:
             if is_selected != photo["selected"]:
                 st.session_state.photos[i]["selected"] = is_selected
                 st.rerun()
-            
+
             # 2. Photo
             st.image(photo["path"], use_column_width=True)
-            
+
             # 3. Label
             new_label = st.text_input(f"Label for photo {i+1}",
                                       value=photo["label"],
                                       key=f"label_{i}")
             st.session_state.photos[i]["label"] = new_label
-        
+
         st.markdown("---")  # Add a horizontal line between photos
 
 # Generate document
