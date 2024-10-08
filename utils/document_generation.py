@@ -15,14 +15,20 @@ def create_word_document(photos, progress_callback=None):
         if i > 0:
             document.add_page_break()
 
-        img = resize_image(photo["path"], int(Inches(6).pt * 96 / 72),
-                         int(Inches(8).pt * 96 / 72))
+        img = resize_image(photo["path"], int(Inches(6).pt * 96 / 72), int(Inches(8).pt * 96 / 72))
         with io.BytesIO() as image_stream:
             img.save(image_stream, format='PNG')
             image_stream.seek(0)
-            picture = document.add_picture(image_stream,
-                                           width=Inches(6),
-                                           height=Inches(8))
+            picture = document.add_picture(image_stream)
+            
+            # Adjust the size of the picture while maintaining aspect ratio
+            aspect_ratio = picture.width / picture.height
+            if aspect_ratio > 6/8:  # If the image is wider than 6x8 inches
+                picture.width = Inches(6)
+                picture.height = int(round(picture.width / aspect_ratio))
+            else:
+                picture.height = Inches(8)
+                picture.width = int(round(picture.height * aspect_ratio))
 
         # Use the nearest label from above if current photo is unlabeled
         label = photo["label"] if photo["label"] else last_label

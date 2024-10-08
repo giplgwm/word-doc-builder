@@ -18,10 +18,4 @@ def resize_image(image_path, target_width, target_height):
         # Resize the image
         img_resized = img.resize((new_width, new_height), Image.LANCZOS)
 
-        # Create a new image with the target size and paste the resized image
-        new_img = Image.new("RGB", (target_width, target_height), (255, 255, 255))
-        paste_x = (target_width - new_width) // 2
-        paste_y = (target_height - new_height) // 2
-        new_img.paste(img_resized, (paste_x, paste_y))
-
-        return new_img
+        return img_resized

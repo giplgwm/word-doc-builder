@@ -93,20 +93,18 @@ if st.session_state.photos:
     for i, photo in enumerate(st.session_state.photos):
         with st.container():
             # 1. Select button
-            is_selected = st.checkbox("Select",
-                                      key=f"select_{i}",
-                                      value=photo["selected"])
+            is_selected = st.checkbox("Select", key=f"select_{i}", value=photo["selected"])
             if is_selected != photo["selected"]:
                 st.session_state.photos[i]["selected"] = is_selected
                 st.rerun()
 
-            # 2. Photo
-            st.image(photo["path"], use_column_width=True)
+            # 2. Photo (smaller version)
+            # Updated display width to 350 pixels
+            display_width = 350
+            st.image(photo["path"], use_column_width=False, width=display_width)
 
-            # 3. Label
-            new_label = st.text_input(f"Label for photo {i+1}",
-                                      value=photo["label"],
-                                      key=f"label_{i}")
+            # 3. Label (now under the photo)
+            new_label = st.text_input(f"Label for photo {i+1}", value=photo["label"], key=f"label_{i}")
             st.session_state.photos[i]["label"] = new_label
 
         st.markdown("---")  # Add a horizontal line between photos
