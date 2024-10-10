@@ -59,7 +59,7 @@ def create_pdf_document(photos, progress_callback=None):
     for i, photo in enumerate(photos):
         img = resize_image(photo["path"], 6 * 72, 8 * 72)  # 72 points per inch
         img_buffer = io.BytesIO()
-        img.save(img_buffer, format='JPEG')
+        img.save(img_buffer, format='JPEG', quality=85)
         img_buffer.seek(0)
         story.append(RLImage(img_buffer, width=6 * 72, height=8 * 72))
 
