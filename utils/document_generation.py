@@ -50,18 +50,29 @@ def create_word_document(photos, progress_callback=None):
 
 def create_pdf_document(photos, progress_callback=None):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)  # 1 inch left margin
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
     styles = getSampleStyleSheet()
     last_label = ""
 
     story = []
 
     for i, photo in enumerate(photos):
-        img = resize_image(photo["path"], 6 * 72, 8 * 72)  # 72 points per inch
+        # Resize the image similar to Word document
+        img = resize_image(photo["path"], int(6 * 72), int(8 * 72))  # 72 points per inch
         img_buffer = io.BytesIO()
-        img.save(img_buffer, format='JPEG', quality=85)
+        img.save(img_buffer, format='PNG')
         img_buffer.seek(0)
-        story.append(RLImage(img_buffer, width=6 * 72, height=8 * 72))
+
+        # Calculate the aspect ratio and adjust the image size
+        aspect_ratio = img.width / img.height
+        if aspect_ratio > 6 / 8:  # If the image is wider than 6x8 inches
+            img_width = 6 * inch
+            img_height = (6 * inch) / aspect_ratio
+        else:
+            img_height = 8 * inch
+            img_width = (8 * inch) * aspect_ratio
+
+        story.append(RLImage(img_buffer, width=img_width, height=img_height))
 
         # Use the nearest label from above if current photo is unlabeled
         label = photo["label"] if photo["label"] else last_label
@@ -69,7 +80,7 @@ def create_pdf_document(photos, progress_callback=None):
 
         # Add left-aligned label
         label_style = styles['Normal']
-        label_style.alignment = 1  # 1 corresponds to center alignment
+        label_style.alignment = 0  # 0 for left alignment
         story.append(Paragraph(label, label_style))
 
         if i < len(photos) - 1:
@@ -82,3 +93,4 @@ def create_pdf_document(photos, progress_callback=None):
     buffer.seek(0)
 
     return buffer
+
