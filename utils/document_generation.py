@@ -59,7 +59,7 @@ def create_pdf_document(photos, progress_callback=None):
     for i, photo in enumerate(photos):
         img = resize_image(photo["path"], 6 * 72, 8 * 72)  # 72 points per inch
         img_buffer = io.BytesIO()
-        img.save(img_buffer, format='PNG')
+        img.save(img_buffer, format='JPEG')
         img_buffer.seek(0)
         story.append(RLImage(img_buffer, width=6 * 72, height=8 * 72))
 
@@ -69,7 +69,7 @@ def create_pdf_document(photos, progress_callback=None):
 
         # Add left-aligned label
         label_style = styles['Normal']
-        label_style.alignment = 0  # 0 corresponds to left alignment
+        label_style.alignment = 1  # 1 corresponds to center alignment
         story.append(Paragraph(label, label_style))
 
         if i < len(photos) - 1:
