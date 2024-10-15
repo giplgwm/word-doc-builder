@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 import io
 from utils.document_generation import create_word_document, create_pdf_document
-from utils.file_handling import save_uploaded_file
+from utils.file_handling import save_uploaded_file, extract_images_from_msg
 
 st.set_page_config(
     page_title="Word Doc Builder",
@@ -17,33 +17,54 @@ if 'photos' not in st.session_state:
     st.session_state.photos = []
 
 # File uploader
-uploaded_files = st.file_uploader("Upload photos",
-                                  type=["jpg", "jpeg", "png"],
+uploaded_files = st.file_uploader("Upload photos or Outlook email files (.msg)",
+                                  type=["jpg", "jpeg", "png", "msg"],
                                   accept_multiple_files=True)
 if uploaded_files:
     new_files_added = False
     for uploaded_file in uploaded_files:
-        # Save the uploaded file and get the file path and MD5 hash
-        file_path, md5_hash = save_uploaded_file(uploaded_file)
+        if uploaded_file.name.lower().endswith('.msg'):
+            # Extract images from .msg file
+            extracted_images = extract_images_from_msg(uploaded_file)
+            for img_data, img_filename in extracted_images:
+                # Save the extracted image and get the file path and MD5 hash
+                file_path, md5_hash = save_uploaded_file(img_data, filename=img_filename)
+                
+                # Check if the file is already in the session state
+                if not any(
+                        photo.get('md5_hash') == md5_hash
+                        for photo in st.session_state.photos):
+                    # Add the file path, MD5 hash, and an empty label to the session state
+                    st.session_state.photos.append({
+                        "path": file_path,
+                        "md5_hash": md5_hash,
+                        "label": "",
+                        "name": img_filename,
+                        "selected": False
+                    })
+                    new_files_added = True
+        else:
+            # Save the uploaded file and get the file path and MD5 hash
+            file_path, md5_hash = save_uploaded_file(uploaded_file)
 
-        # Check if the file is already in the session state
-        if not any(
-                photo.get('md5_hash') == md5_hash
-                for photo in st.session_state.photos):
-            # Add the file path, MD5 hash, and an empty label to the session state
-            st.session_state.photos.append({
-                "path": file_path,
-                "md5_hash": md5_hash,
-                "label": "",
-                "name": uploaded_file.name,
-                "selected": False
-            })
-            new_files_added = True
+            # Check if the file is already in the session state
+            if not any(
+                    photo.get('md5_hash') == md5_hash
+                    for photo in st.session_state.photos):
+                # Add the file path, MD5 hash, and an empty label to the session state
+                st.session_state.photos.append({
+                    "path": file_path,
+                    "md5_hash": md5_hash,
+                    "label": "",
+                    "name": uploaded_file.name,
+                    "selected": False
+                })
+                new_files_added = True
 
     if new_files_added:
-        pass
+        st.success("New files added successfully!")
     else:
-        pass
+        st.info("No new files added. They might already exist in the session.")
 
 # Display info message
 if st.session_state.photos:

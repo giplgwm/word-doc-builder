@@ -4,6 +4,7 @@ from docx.shared import Inches
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Image as RLImage, Paragraph, PageBreak, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
 from utils.image_processing import resize_image
 
 
@@ -15,15 +16,16 @@ def create_word_document(photos, progress_callback=None):
         if i > 0:
             document.add_page_break()
 
-        img = resize_image(photo["path"], int(Inches(6).pt * 96 / 72), int(Inches(8).pt * 96 / 72))
+        img = resize_image(photo["path"], int(Inches(6).pt * 96 / 72),
+                           int(Inches(8).pt * 96 / 72))
         with io.BytesIO() as image_stream:
             img.save(image_stream, format='PNG')
             image_stream.seek(0)
             picture = document.add_picture(image_stream)
-            
+
             # Adjust the size of the picture while maintaining aspect ratio
             aspect_ratio = picture.width / picture.height
-            if aspect_ratio > 6/8:  # If the image is wider than 6x8 inches
+            if aspect_ratio > 6 / 8:  # If the image is wider than 6x8 inches
                 picture.width = Inches(6)
                 picture.height = int(round(picture.width / aspect_ratio))
             else:
@@ -36,7 +38,7 @@ def create_word_document(photos, progress_callback=None):
 
         # Add a left-aligned paragraph for the label
         paragraph = document.add_paragraph(label)
-        paragraph.alignment = 0  # 0 corresponds to left alignment
+        paragraph.alignment = 0
 
         if progress_callback:
             progress_callback((i + 1) / len(photos))
@@ -93,4 +95,3 @@ def create_pdf_document(photos, progress_callback=None):
     buffer.seek(0)
 
     return buffer
-
