@@ -80,9 +80,9 @@ def create_pdf_document(photos, progress_callback=None):
         label = photo["label"] if photo["label"] else last_label
         last_label = label
 
-        # Add label
+        # Add left-aligned label
         label_style = styles['Normal']
-        label_style.alignment = 1
+        label_style.alignment = 0  # 0 for left alignment
         story.append(Paragraph(label, label_style))
 
         if i < len(photos) - 1:

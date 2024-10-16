@@ -15,6 +15,8 @@ st.set_page_config(
 # Initialize session state
 if 'photos' not in st.session_state:
     st.session_state.photos = []
+if 'blocked_photos' not in st.session_state:
+    st.session_state.blocked_photos = []
 
 # File uploader
 uploaded_files = st.file_uploader("Upload photos or Outlook email files (.msg)",
@@ -30,8 +32,8 @@ if uploaded_files:
                 # Save the extracted image and get the file path and MD5 hash
                 file_path, md5_hash = save_uploaded_file(img_data, filename=img_filename)
                 
-                # Check if the file is already in the session state
-                if not any(
+                # Check if the file is not in the blocked list and not already in the session state
+                if md5_hash not in st.session_state.blocked_photos and not any(
                         photo.get('md5_hash') == md5_hash
                         for photo in st.session_state.photos):
                     # Add the file path, MD5 hash, and an empty label to the session state
@@ -47,8 +49,8 @@ if uploaded_files:
             # Save the uploaded file and get the file path and MD5 hash
             file_path, md5_hash = save_uploaded_file(uploaded_file)
 
-            # Check if the file is already in the session state
-            if not any(
+            # Check if the file is not in the blocked list and not already in the session state
+            if md5_hash not in st.session_state.blocked_photos and not any(
                     photo.get('md5_hash') == md5_hash
                     for photo in st.session_state.photos):
                 # Add the file path, MD5 hash, and an empty label to the session state
@@ -64,7 +66,7 @@ if uploaded_files:
     if new_files_added:
         st.success("New files added successfully!")
     else:
-        st.info("No new files added. They might already exist in the session.")
+        st.info("No new files added. They might already exist in the session or have been removed previously.")
 
 # Display info message
 if st.session_state.photos:
@@ -72,10 +74,9 @@ if st.session_state.photos:
         "You can label, reorder, and edit your photos below. Photos with no label will be labeled the same as the photo before them, so you don't have to repeat yourself."
     )
 
-# Display and label photos
 if st.session_state.photos:
-    # Add "Move Up" and "Move Down" buttons
-    col1, col2 = st.columns(2)
+    # "Move Up", "Move Down", and "Remove Selected" buttons
+    col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("Move Up"):
             selected_indices = [
@@ -110,25 +111,27 @@ if st.session_state.photos:
                     st.session_state.photos[idx + 1]['selected'] = True
             st.rerun()
 
+    with col3:
+        if st.button('Remove Selected'):
+            st.session_state.blocked_photos.extend([photo['md5_hash'] for photo in st.session_state.photos if photo['selected']])
+            st.session_state.photos = [photo for photo in st.session_state.photos if not photo['selected']]
+            st.rerun()
+
     # Display photos and labels
     for i, photo in enumerate(st.session_state.photos):
         with st.container():
-            # 1. Select button
             is_selected = st.checkbox("Select", key=f"select_{i}", value=photo["selected"])
             if is_selected != photo["selected"]:
                 st.session_state.photos[i]["selected"] = is_selected
                 st.rerun()
 
-            # 2. Photo (smaller version)
-            # Updated display width to 350 pixels
-            display_width = 350
+            display_width = 250  
             st.image(photo["path"], use_column_width=False, width=display_width)
 
-            # 3. Label (now under the photo)
             new_label = st.text_input(f"Label for photo {i+1}", value=photo["label"], key=f"label_{i}")
             st.session_state.photos[i]["label"] = new_label
 
-        st.markdown("---")  # Add a horizontal line between photos
+        st.markdown("---") 
 
 # Generate document
 if st.session_state.photos:
