@@ -12,13 +12,11 @@ st.set_page_config(
         "Generates word documents with photos & labels, with page breaks between them."
     })
 
-# Initialize session state
 if 'photos' not in st.session_state:
     st.session_state.photos = []
 if 'blocked_photos' not in st.session_state:
     st.session_state.blocked_photos = []
 
-# File uploader
 uploaded_files = st.file_uploader("Upload photos or Outlook email files (.msg)",
                                   type=["jpg", "jpeg", "png", "msg"],
                                   accept_multiple_files=True)
@@ -26,17 +24,14 @@ if uploaded_files:
     new_files_added = False
     for uploaded_file in uploaded_files:
         if uploaded_file.name.lower().endswith('.msg'):
-            # Extract images from .msg file
             extracted_images = extract_images_from_msg(uploaded_file)
             for img_data, img_filename in extracted_images:
-                # Save the extracted image and get the file path and MD5 hash
                 file_path, md5_hash = save_uploaded_file(img_data, filename=img_filename)
                 
                 # Check if the file is not in the blocked list and not already in the session state
                 if md5_hash not in st.session_state.blocked_photos and not any(
                         photo.get('md5_hash') == md5_hash
                         for photo in st.session_state.photos):
-                    # Add the file path, MD5 hash, and an empty label to the session state
                     st.session_state.photos.append({
                         "path": file_path,
                         "md5_hash": md5_hash,
@@ -46,14 +41,12 @@ if uploaded_files:
                     })
                     new_files_added = True
         else:
-            # Save the uploaded file and get the file path and MD5 hash
             file_path, md5_hash = save_uploaded_file(uploaded_file)
 
             # Check if the file is not in the blocked list and not already in the session state
             if md5_hash not in st.session_state.blocked_photos and not any(
                     photo.get('md5_hash') == md5_hash
                     for photo in st.session_state.photos):
-                # Add the file path, MD5 hash, and an empty label to the session state
                 st.session_state.photos.append({
                     "path": file_path,
                     "md5_hash": md5_hash,
@@ -68,14 +61,12 @@ if uploaded_files:
     else:
         st.info("No new files added. They might already exist in the session or have been removed previously.")
 
-# Display info message
 if st.session_state.photos:
     st.text(
         "You can label, reorder, and edit your photos below. Photos with no label will be labeled the same as the photo before them, so you don't have to repeat yourself."
     )
 
 if st.session_state.photos:
-    # "Move Up", "Move Down", and "Remove Selected" buttons
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("Move Up"):
@@ -117,7 +108,6 @@ if st.session_state.photos:
             st.session_state.photos = [photo for photo in st.session_state.photos if not photo['selected']]
             st.rerun()
 
-    # Display photos and labels
     for i, photo in enumerate(st.session_state.photos):
         with st.container():
             is_selected = st.checkbox("Select", key=f"select_{i}", value=photo["selected"])
@@ -133,7 +123,6 @@ if st.session_state.photos:
 
         st.markdown("---") 
 
-# Generate document
 if st.session_state.photos:
     document_name = st.text_input("Enter document name", value="photos")
     doc_type = st.radio("Select document type", ("Word", "PDF"))
