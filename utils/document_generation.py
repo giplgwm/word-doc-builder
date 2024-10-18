@@ -19,7 +19,7 @@ def create_word_document(photos, progress_callback=None):
         img = resize_image(photo["path"], int(Inches(6).pt * 96 / 72),
                            int(Inches(8).pt * 96 / 72))
         with io.BytesIO() as image_stream:
-            img.save(image_stream, format='PNG')
+            img.save(image_stream, format='JPEG')
             image_stream.seek(0)
             picture = document.add_picture(image_stream)
 
@@ -58,11 +58,11 @@ def create_pdf_document(photos, progress_callback=None):
     for i, photo in enumerate(photos):
         img = resize_image(photo["path"], int(6 * 72), int(8 * 72))  # 72 points per inch
         img_buffer = io.BytesIO()
-        img.save(img_buffer, format='PNG')
+        img.save(img_buffer, format='JPEG')
         img_buffer.seek(0)
 
         aspect_ratio = img.width / img.height
-        if aspect_ratio > 6 / 8:  
+        if aspect_ratio > 6 / 8:  # If the image is wider than 6x8 inches
             img_width = 6 * inch
             img_height = (6 * inch) / aspect_ratio
         else:

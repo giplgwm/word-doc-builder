@@ -3,6 +3,9 @@ import hashlib
 from PIL import Image, ImageOps
 import io
 import extract_msg
+import email
+from email.header import decode_header
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 UPLOAD_DIR = 'uploaded_files'
 
@@ -26,18 +29,16 @@ def save_uploaded_file(uploaded_file, filename=None):
     elif hasattr(uploaded_file, 'name'):
         file_extension = os.path.splitext(uploaded_file.name)[1].lower()
     else:
-        file_extension = '.jpg'  # Default to .jpg if no extension is available
+        file_extension = '.jpg'  
 
     unique_filename = f"{md5_hash}{file_extension}"
 
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
 
-    # Rotate the image according to EXIF data. This fixes the bug of photos not being oriented properly
     with Image.open(uploaded_file) as img:
         img_rotated = ImageOps.exif_transpose(img)
         img_rotated.save(file_path)
 
-    print(f"File saved: {file_path}")
     return file_path, md5_hash
 
 def extract_images_from_msg(msg_file):
@@ -51,5 +52,27 @@ def extract_images_from_msg(msg_file):
         if attachment.longFilename and attachment.longFilename.lower().endswith(('.jpg', '.jpeg', '.png')):
             image_data = io.BytesIO(attachment.data)
             images.append((image_data, attachment.longFilename))
+
+    return images
+
+def extract_images_from_eml(eml_file):
+    """
+    Extract images from an .eml file.
+    """
+    msg = email.message_from_bytes(eml_file.read())
+    images = []
+
+    for part in msg.walk():
+        if part.get_content_maintype() == 'image':
+            filename = part.get_filename()
+            if filename:
+                filename = decode_header(filename)[0][0]
+                if isinstance(filename, bytes):
+                    filename = filename.decode()
+            else:
+                filename = f'image_{len(images)}.jpg'
+
+            image_data = io.BytesIO(part.get_payload(decode=True))
+            images.append((image_data, filename))
 
     return images
