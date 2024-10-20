@@ -4,8 +4,9 @@ from docx.shared import Inches
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Image as RLImage, Paragraph, PageBreak, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from utils.image_processing import resize_image
+from PIL import Image
+
+MAX_IMG_SIZE = (Inches(6).pt, Inches(8).pt)
 
 
 def create_word_document(photos, progress_callback=None):
@@ -16,20 +17,12 @@ def create_word_document(photos, progress_callback=None):
         if i > 0:
             document.add_page_break()
 
-        img = resize_image(photo["path"], int(Inches(6).pt * 96 / 72),
-                           int(Inches(8).pt * 96 / 72))
-        with io.BytesIO() as image_stream:
-            img.save(image_stream, format='JPEG')
-            image_stream.seek(0)
-            picture = document.add_picture(image_stream)
-
-            aspect_ratio = picture.width / picture.height
-            if aspect_ratio > 6 / 8:  # If the image is wider than 6x8 inches
-                picture.width = Inches(6)
-                picture.height = int(round(picture.width / aspect_ratio))
-            else:
-                picture.height = Inches(8)
-                picture.width = int(round(picture.height * aspect_ratio))
+        with Image.open(photo["data"]) as img:
+            with io.BytesIO() as image_stream:
+                img.thumbnail(MAX_IMG_SIZE)
+                img.save(image_stream, format='JPEG')
+                image_stream.seek(0)
+                document.add_picture(image_stream)
 
         label = photo["label"] if photo["label"] else last_label
         last_label = label
@@ -56,20 +49,13 @@ def create_pdf_document(photos, progress_callback=None):
     story = []
 
     for i, photo in enumerate(photos):
-        img = resize_image(photo["path"], int(6 * 72), int(8 * 72))  # 72 points per inch
-        img_buffer = io.BytesIO()
-        img.save(img_buffer, format='JPEG')
-        img_buffer.seek(0)
+        with Image.open(photo['path']) as img:
+            img_buffer = io.BytesIO()
+            img.thumbnail(MAX_IMG_SIZE)
+            img.save(img_buffer, format='JPEG')
+            img_buffer.seek(0)
 
-        aspect_ratio = img.width / img.height
-        if aspect_ratio > 6 / 8:  # If the image is wider than 6x8 inches
-            img_width = 6 * inch
-            img_height = (6 * inch) / aspect_ratio
-        else:
-            img_height = 8 * inch
-            img_width = (8 * inch) * aspect_ratio
-
-        story.append(RLImage(img_buffer, width=img_width, height=img_height))
+            story.append(RLImage(img_buffer))
 
         label = photo["label"] if photo["label"] else last_label
         last_label = label
