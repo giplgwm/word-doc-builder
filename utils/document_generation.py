@@ -17,7 +17,7 @@ def create_word_document(photos, progress_callback=None):
         if i > 0:
             document.add_page_break()
 
-        with Image.open(photo["data"]) as img:
+        with Image.open(photo["path"]) as img:
             with io.BytesIO() as image_stream:
                 img.thumbnail(MAX_IMG_SIZE)
                 img.save(image_stream, format='JPEG')
@@ -49,7 +49,7 @@ def create_pdf_document(photos, progress_callback=None):
     story = []
 
     for i, photo in enumerate(photos):
-        with Image.open(photo['path']) as img:
+        with Image.open(photo["path"]) as img:
             img_buffer = io.BytesIO()
             img.thumbnail(MAX_IMG_SIZE)
             img.save(img_buffer, format='JPEG')
