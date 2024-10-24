@@ -16,10 +16,13 @@ if 'photos' not in st.session_state:
     st.session_state.photos = []
 if 'blocked_photos' not in st.session_state:
     st.session_state.blocked_photos = []
+if 'file_uploader_key' not in st.session_state:
+    st.session_state.file_uploader_key = 1
 
 uploaded_files = st.file_uploader("Upload photos or email files (.msg or .eml)",
                                   type=["jpg", "jpeg", "png", "msg", "eml"],
-                                  accept_multiple_files=True)
+                                  accept_multiple_files=True,
+                                 key=f'fileuploader_{st.session_state.file_uploader_key})
 if uploaded_files:
     new_files_added = False
     for uploaded_file in uploaded_files:
@@ -51,9 +54,8 @@ if uploaded_files:
                 new_files_added = True
 
     if new_files_added:
-        st.success("New files added successfully!")
-    else:
-        st.info("No new files added. They might already exist in the session or have been removed previously.")
+        st.session_state.file_uploader_key += 1
+        st.rerun()
 
 if st.session_state.photos:
     st.text(
