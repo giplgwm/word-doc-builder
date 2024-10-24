@@ -63,51 +63,51 @@ if st.session_state.photos:
     )
 
 if st.session_state.photos:
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("Move Up"):
-            selected_indices = [
-                i for i, photo in enumerate(st.session_state.photos)
-                if photo["selected"]
-            ]
-            for idx in sorted(selected_indices):
-                if idx > 0:
-                    # Swap photos and labels
-                    st.session_state.photos[idx], st.session_state.photos[
-                        idx - 1] = st.session_state.photos[
-                            idx - 1], st.session_state.photos[idx]
-                    # Update selection state
-                    st.session_state.photos[idx]['selected'] = False
-                    st.session_state.photos[idx - 1]['selected'] = True
-            st.rerun()
+    st.sidebar.title("Photo Controls")
+    st.sidebar.markdown("---")
+    st.sidebar.write("Select images and then use the controls below to reorder or remove them")
+    st.sidebar.markdown("---")
+    if st.sidebar.button("Move Up"):
+        selected_indices = [
+            i for i, photo in enumerate(st.session_state.photos)
+            if photo["selected"]
+        ]
+        for idx in sorted(selected_indices):
+            if idx > 0:
+                # Swap photos and labels
+                st.session_state.photos[idx], st.session_state.photos[
+                    idx - 1] = st.session_state.photos[
+                        idx - 1], st.session_state.photos[idx]
+                # Update selection state
+                st.session_state.photos[idx]['selected'] = False
+                st.session_state.photos[idx - 1]['selected'] = True
+        st.rerun()
 
-    with col2:
-        if st.button("Move Down"):
-            selected_indices = [
-                i for i, photo in enumerate(st.session_state.photos)
-                if photo["selected"]
-            ]
-            for idx in sorted(selected_indices, reverse=True):
-                if idx < len(st.session_state.photos) - 1:
-                    # Swap photos and labels
-                    st.session_state.photos[idx], st.session_state.photos[
-                        idx + 1] = st.session_state.photos[
-                            idx + 1], st.session_state.photos[idx]
-                    # Update selection state
-                    st.session_state.photos[idx]['selected'] = False
-                    st.session_state.photos[idx + 1]['selected'] = True
-            st.rerun()
+    if st.sidebar.button("Move Down"):
+        selected_indices = [
+            i for i, photo in enumerate(st.session_state.photos)
+            if photo["selected"]
+        ]
+        for idx in sorted(selected_indices, reverse=True):
+            if idx < len(st.session_state.photos) - 1:
+                # Swap photos and labels
+                st.session_state.photos[idx], st.session_state.photos[
+                    idx + 1] = st.session_state.photos[
+                        idx + 1], st.session_state.photos[idx]
+                # Update selection state
+                st.session_state.photos[idx]['selected'] = False
+                st.session_state.photos[idx + 1]['selected'] = True
+        st.rerun()
 
-    with col3:
-        if st.button('Remove Selected'):
-            selected_hashes = [photo['md5_hash'] for photo in st.session_state.photos if photo['selected']]
-            
-            st.session_state.blocked_photos.extend(selected_hashes)
-            
-            st.session_state.photos = [photo for photo in st.session_state.photos if not photo['selected']]
-            
-            
-            st.rerun()
+    if st.sidebar.button('Remove Selected'):
+        selected_hashes = [photo['md5_hash'] for photo in st.session_state.photos if photo['selected']]
+        
+        st.session_state.blocked_photos.extend(selected_hashes)
+        
+        st.session_state.photos = [photo for photo in st.session_state.photos if not photo['selected']]
+        
+        
+        st.rerun()
 
 
     for i, photo in enumerate(st.session_state.photos):
