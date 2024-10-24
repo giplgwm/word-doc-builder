@@ -127,7 +127,7 @@ if st.session_state.photos:
 
 
 if st.session_state.photos:
-    document_name = st.text_input("Enter document name", value="photos")
+    document_name = st.text_input("Enter document name")
     doc_type = st.radio("Select document type", ("Word", "PDF"))
     if st.button("Generate Document"):
         progress_bar = st.progress(0)
