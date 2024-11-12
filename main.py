@@ -66,7 +66,6 @@ if st.session_state.photos:
 
 if st.session_state.photos:
     st.sidebar.title("Photo Controls")
-    st.sidebar.markdown("---")
     st.sidebar.write(
         "Select images and then use the controls below to reorder or remove them"
     )
