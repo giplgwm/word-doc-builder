@@ -66,15 +66,13 @@ if st.session_state.photos:
 
 if st.session_state.photos:
     st.sidebar.title("Photo Controls")
-    st.sidebar.write(
-        "Select images and then use the controls below to reorder or remove them"
-    )
     st.sidebar.markdown("---")
+    
     st.sidebar.write(
         f"Photos Selected: {len([photo for photo in st.session_state.photos if photo['selected']])}"
     )
 
-    if st.sidebar.button('Deselect All'):
+    if st.sidebar.button('Deselect All', disabled=not bool([photo for photo in st.session_state.photos if photo['selected']])):
         selected = [
             photo for photo in st.session_state.photos if photo['selected']
         ]
@@ -82,39 +80,38 @@ if st.session_state.photos:
             photo['selected'] = False
         st.rerun()
     st.sidebar.markdown("---")
-    col1, col2 = st.sidebar.columns(2)
-    with col1:
-        if st.button("Move Up"):
-            selected_indices = [
-                i for i, photo in enumerate(st.session_state.photos)
-                if photo["selected"]
-            ]
-            for idx in sorted(selected_indices):
-                if idx > 0:
-                    # Swap photos and labels
-                    st.session_state.photos[idx], st.session_state.photos[
-                        idx - 1] = st.session_state.photos[
-                            idx - 1], st.session_state.photos[idx]
-                    # Update selection state
-                    st.session_state.photos[idx]['selected'] = False
-                    st.session_state.photos[idx - 1]['selected'] = True
-            st.rerun()
-    with col2:
-        if st.button("Move Down", use_container_width=True):
-            selected_indices = [
-                i for i, photo in enumerate(st.session_state.photos)
-                if photo["selected"]
-            ]
-            for idx in sorted(selected_indices, reverse=True):
-                if idx < len(st.session_state.photos) - 1:
-                    # Swap photos and labels
-                    st.session_state.photos[idx], st.session_state.photos[
-                        idx + 1] = st.session_state.photos[
-                            idx + 1], st.session_state.photos[idx]
-                    # Update selection state
-                    st.session_state.photos[idx]['selected'] = False
-                    st.session_state.photos[idx + 1]['selected'] = True
-            st.rerun()
+
+    if st.sidebar.button("Move Up"):
+        selected_indices = [
+            i for i, photo in enumerate(st.session_state.photos)
+            if photo["selected"]
+        ]
+        for idx in sorted(selected_indices):
+            if idx > 0:
+                # Swap photos and labels
+                st.session_state.photos[idx], st.session_state.photos[
+                    idx - 1] = st.session_state.photos[
+                        idx - 1], st.session_state.photos[idx]
+                # Update selection state
+                st.session_state.photos[idx]['selected'] = False
+                st.session_state.photos[idx - 1]['selected'] = True
+        st.rerun()
+
+    if st.sidebar.button("Move Down"):
+        selected_indices = [
+            i for i, photo in enumerate(st.session_state.photos)
+            if photo["selected"]
+        ]
+        for idx in sorted(selected_indices, reverse=True):
+            if idx < len(st.session_state.photos) - 1:
+                # Swap photos and labels
+                st.session_state.photos[idx], st.session_state.photos[
+                    idx + 1] = st.session_state.photos[
+                        idx + 1], st.session_state.photos[idx]
+                # Update selection state
+                st.session_state.photos[idx]['selected'] = False
+                st.session_state.photos[idx + 1]['selected'] = True
+        st.rerun()
 
     if st.sidebar.button('Remove Selected'):
         selected_hashes = [
