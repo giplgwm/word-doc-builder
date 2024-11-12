@@ -84,7 +84,7 @@ if st.session_state.photos:
     st.sidebar.markdown("---")
     col1, col2 = st.sidebar.columns(2)
     with col1:
-        if st.sidebar.button("Move Up"):
+        if st.button("Move Up"):
             selected_indices = [
                 i for i, photo in enumerate(st.session_state.photos)
                 if photo["selected"]
@@ -100,7 +100,7 @@ if st.session_state.photos:
                     st.session_state.photos[idx - 1]['selected'] = True
             st.rerun()
     with col2:
-        if st.sidebar.button("Move Down"):
+        if st.button("Move Down"):
             selected_indices = [
                 i for i, photo in enumerate(st.session_state.photos)
                 if photo["selected"]
