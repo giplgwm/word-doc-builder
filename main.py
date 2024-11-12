@@ -100,7 +100,7 @@ if st.session_state.photos:
                     st.session_state.photos[idx - 1]['selected'] = True
             st.rerun()
     with col2:
-        if st.button("Move Down"):
+        if st.button("Move Down", use_container_width=True):
             selected_indices = [
                 i for i, photo in enumerate(st.session_state.photos)
                 if photo["selected"]
