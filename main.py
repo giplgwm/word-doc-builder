@@ -15,7 +15,14 @@ st.set_page_config(
 if 'photos' not in st.session_state:
     st.session_state.photos = []
 if 'blocked_photos' not in st.session_state:
-    st.session_state.blocked_photos = []
+    st.session_state.blocked_photos = [
+        # Photos from the standard company email footer
+        '50538c64a39d50f8611e301bd7f2dc31',
+        'cb7d6a948314aac9e08e17b915a54a2d',
+        'a15b076a53f145c328aa7a76643e16a7',
+        'aeff281051ae779abfbc7ee5759439b2',
+        '13a181f5af470f08e4acd493577deaf4',
+    ]
 if 'file_uploader_key' not in st.session_state:
     st.session_state.file_uploader_key = 1
 
@@ -40,6 +47,7 @@ if uploaded_files:
         for img_data, img_filename in extracted_images:
             file_path, md5_hash = save_uploaded_file(img_data,
                                                      filename=img_filename)
+            print(md5_hash)
 
             # Check if the file is not in the blocked list and not already in the session state
             if md5_hash not in st.session_state.blocked_photos and not any(
@@ -54,10 +62,8 @@ if uploaded_files:
                     "selected": False
                 })
                 new_files_added = True
-
-    if new_files_added:
-        st.session_state.file_uploader_key += 1
-        st.rerun()
+    st.session_state.file_uploader_key += 1
+    st.rerun()
 
 if st.session_state.photos:
     st.text(
@@ -67,12 +73,16 @@ if st.session_state.photos:
 if st.session_state.photos:
     st.sidebar.title("Photo Controls")
     st.sidebar.markdown("---")
-    
+
     st.sidebar.write(
         f"Photos Selected: {len([photo for photo in st.session_state.photos if photo['selected']])}"
     )
 
-    if st.sidebar.button('Deselect All', disabled=not bool([photo for photo in st.session_state.photos if photo['selected']])):
+    if st.sidebar.button(
+            'Deselect All',
+            disabled=not bool([
+                photo for photo in st.session_state.photos if photo['selected']
+            ])):
         selected = [
             photo for photo in st.session_state.photos if photo['selected']
         ]
