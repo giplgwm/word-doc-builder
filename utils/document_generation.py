@@ -18,6 +18,8 @@ def create_word_document(photos, progress_callback=None):
             document.add_page_break()
 
         with Image.open(photo["path"]) as img:
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
             with io.BytesIO() as image_stream:
                 img.thumbnail(MAX_IMG_SIZE)
                 img.save(image_stream, format='JPEG')
@@ -50,6 +52,8 @@ def create_pdf_document(photos, progress_callback=None):
 
     for i, photo in enumerate(photos):
         with Image.open(photo["path"]) as img:
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
             img_buffer = io.BytesIO()
             img.thumbnail(MAX_IMG_SIZE)
             img.save(img_buffer, format='JPEG')
