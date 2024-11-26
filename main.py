@@ -146,8 +146,7 @@ if st.session_state.photos:
                 st.rerun()
 
             display_width = 250
-            st.image(photo["path"],
-                     width=display_width)
+            st.image(photo["path"], width=display_width)
 
             new_label = st.text_input(f"Label for photo {i+1}",
                                       value=photo["label"],
