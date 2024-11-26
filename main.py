@@ -47,7 +47,6 @@ if uploaded_files:
         for img_data, img_filename in extracted_images:
             file_path, md5_hash = save_uploaded_file(img_data,
                                                      filename=img_filename)
-            print(md5_hash)
 
             # Check if the file is not in the blocked list and not already in the session state
             if md5_hash not in st.session_state.blocked_photos and not any(
