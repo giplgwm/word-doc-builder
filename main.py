@@ -136,6 +136,13 @@ if st.session_state.photos:
 
         st.rerun()
 
+    keep_photo_quality = st.sidebar.checkbox(
+        'Keep Photo Quality',
+        True,
+        help=
+        "Unchecking this will decrease the file size but make the images a bit less clear."
+    )
+
     for i, photo in enumerate(st.session_state.photos):
         with st.container():
             is_selected = st.checkbox("Select",
@@ -165,7 +172,8 @@ if st.session_state.photos:
         if doc_type == "Word":
             doc_file = create_word_document(
                 st.session_state.photos,
-                progress_callback=lambda p: progress_bar.progress(p))
+                progress_callback=lambda p: progress_bar.progress(p),
+                keep_photo_quality=keep_photo_quality)
             file_extension = "docx"
             mime_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         else:

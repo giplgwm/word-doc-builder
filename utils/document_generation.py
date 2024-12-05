@@ -9,7 +9,7 @@ from PIL import Image
 MAX_IMG_SIZE = (Inches(6).pt, Inches(8).pt)
 
 
-def create_word_document(photos, progress_callback=None):
+def create_word_document(photos, keep_photo_quality, progress_callback=None):
     document = Document()
     last_label = ""
 
@@ -22,7 +22,9 @@ def create_word_document(photos, progress_callback=None):
                 img = img.convert('RGB')
             with io.BytesIO() as image_stream:
                 img.thumbnail(MAX_IMG_SIZE)
-                img.save(image_stream, format='JPEG')
+                quality = ('keep' if img.format == 'JPEG' else
+                           95) if keep_photo_quality else 65
+                img.save(image_stream, format='JPEG', quality=quality)
                 image_stream.seek(0)
                 document.add_picture(image_stream)
 
