@@ -3,3 +3,4 @@ pillow
 python-docx
 reportlab
 extract_msg
+pillow-heic
