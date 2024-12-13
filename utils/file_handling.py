@@ -6,6 +6,9 @@ import extract_msg
 import email
 from email.header import decode_header
 from streamlit.runtime.uploaded_file_manager import UploadedFile
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 UPLOAD_DIR = 'uploaded_files'
 
