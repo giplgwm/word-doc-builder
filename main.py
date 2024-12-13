@@ -28,7 +28,7 @@ if 'file_uploader_key' not in st.session_state:
 
 uploaded_files = st.file_uploader(
     "Upload photos or email files (.msg or .eml)",
-    type=["jpg", "jpeg", "png", "msg", "eml"],
+    type=["jpg", "jpeg", "png", "heic", "msg", "eml"],
     accept_multiple_files=True,
     key=f'fileuploader_{st.session_state.file_uploader_key}')
 if uploaded_files:
