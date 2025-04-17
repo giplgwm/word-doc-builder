@@ -17,11 +17,11 @@ if 'photos' not in st.session_state:
 if 'blocked_photos' not in st.session_state:
     st.session_state.blocked_photos = [
         # Photos from the standard company email footer
-        '50538c64a39d50f8611e301bd7f2dc31',
-        '6d069ea79e8fd0642146d34e8607bd6f',
-        'd078dbf47b4ab62d40d42c512eca32d6',
-        '13a181f5af470f08e4acd493577deaf4',
-        'b4fc390225e0d3372f0d80e2519bebaf'
+        # '50538c64a39d50f8611e301bd7f2dc31',
+        # '6d069ea79e8fd0642146d34e8607bd6f',
+        # 'd078dbf47b4ab62d40d42c512eca32d6',
+        # '13a181f5af470f08e4acd493577deaf4',
+        # 'b4fc390225e0d3372f0d80e2519bebaf'
     ]
 if 'file_uploader_key' not in st.session_state:
     st.session_state.file_uploader_key = 1
