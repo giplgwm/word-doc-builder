@@ -12,6 +12,7 @@ register_heif_opener()
 
 UPLOAD_DIR = 'uploaded_files'
 
+
 def save_uploaded_file(uploaded_file, filename=None):
     """
     Save the uploaded file to a permanent directory, rotate it according to EXIF data,
@@ -22,7 +23,7 @@ def save_uploaded_file(uploaded_file, filename=None):
     else:
         file_content = uploaded_file.read()
         uploaded_file.seek(0)  # Reset file pointer
-    
+
     md5_hash = hashlib.md5(file_content).hexdigest()
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -32,7 +33,7 @@ def save_uploaded_file(uploaded_file, filename=None):
     elif hasattr(uploaded_file, 'name'):
         file_extension = os.path.splitext(uploaded_file.name)[1].lower()
     else:
-        file_extension = '.jpg'  
+        file_extension = '.jpg'
 
     unique_filename = f"{md5_hash}{file_extension}"
 
@@ -44,6 +45,7 @@ def save_uploaded_file(uploaded_file, filename=None):
 
     return file_path, md5_hash
 
+
 def extract_images_from_msg(msg_file):
     """
     Extract images from an Outlook .msg file.
@@ -52,11 +54,20 @@ def extract_images_from_msg(msg_file):
     images = []
 
     for attachment in msg.attachments:
-        if attachment.longFilename and attachment.longFilename.lower().endswith(('.jpg', '.jpeg', '.png')):
+        if attachment.longFilename and attachment.longFilename.lower(
+        ).endswith(('.jpg', '.jpeg', '.png')):
             image_data = io.BytesIO(attachment.data)
-            images.append((image_data, attachment.longFilename))
+            try:
+                with Image.open(image_data) as img:
+                    width, height = img.size
+                    if width >= 101 and height >= 101:
+                        image_data.seek(0)
+                        images.append((image_data, attachment.longFilename))
+            except Exception:
+                continue
 
     return images
+
 
 def extract_images_from_eml(eml_file):
     """
@@ -76,6 +87,13 @@ def extract_images_from_eml(eml_file):
                 filename = f'image_{len(images)}.jpg'
 
             image_data = io.BytesIO(part.get_payload(decode=True))
-            images.append((image_data, filename))
+            try:
+                with Image.open(image_data) as img:
+                    width, height = img.size
+                    if width >= 101 and height >= 101:
+                        image_data.seek(0)
+                        images.append((image_data, filename))
+            except Exception:
+                continue
 
     return images
