@@ -13,6 +13,7 @@ register_heif_opener()
 UPLOAD_DIR = 'uploaded_files'
 
 MIN_SIZE = 151
+MAX_SIZE = 8500
 
 
 def save_uploaded_file(uploaded_file, filename=None):
@@ -62,7 +63,7 @@ def extract_images_from_msg(msg_file):
             try:
                 with Image.open(image_data) as img:
                     width, height = img.size
-                    if width >= MIN_SIZE and height >= MIN_SIZE:
+                    if width in range(MIN_SIZE, MAX_SIZE) and height in range(MIN_SIZE, MAX_SIZE):
                         image_data.seek(0)
                         images.append((image_data, attachment.longFilename))
             except Exception:
@@ -92,7 +93,7 @@ def extract_images_from_eml(eml_file):
             try:
                 with Image.open(image_data) as img:
                     width, height = img.size
-                    if width >= MIN_SIZE and height >= MIN_SIZE:
+                    if width in range(MIN_SIZE, MAX_SIZE) and height in range(MIN_SIZE, MAX_SIZE):
                         image_data.seek(0)
                         images.append((image_data, filename))
             except Exception:
